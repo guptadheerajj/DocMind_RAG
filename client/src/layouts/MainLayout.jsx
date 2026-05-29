@@ -9,7 +9,10 @@ import Sidebar from '@/components/sidebar/Sidebar';
 import ChatPage from '@/pages/ChatPage';
 
 export default function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Default: open on desktop (≥768px), closed on mobile
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth >= 768
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -33,34 +36,66 @@ export default function MainLayout() {
     }
   }
 
+  // On mobile, close sidebar after selecting a chat
+  function handleSelectChat(chatId) {
+    selectChat(chatId);
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  }
+
+  // On mobile, close sidebar after creating a new chat
+  function handleNewChat() {
+    createChat();
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  }
+
   const messages = activeChat?.messages ?? [];
-  const sources = activeChat?.sources ?? [];
+  const sources  = activeChat?.sources  ?? [];
   const hasSources = sources.length > 0;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
 
-      {/* Sidebar */}
+      {/* ── Mobile backdrop — click outside to close sidebar ─── */}
       {sidebarOpen && (
-        <Sidebar
-          chats={chats}
-          activeChatId={activeChatId}
-          activeChat={activeChat}
-          onNewChat={createChat}
-          onSelectChat={selectChat}
-          onDeleteChat={deleteChat}
-          onSourceAdded={(src) => addSource(activeChatId, src)}
-          onSourceDeleted={removeSource}
-          onClose={() => setSidebarOpen(false)}
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main content */}
+      {/* ── Sidebar
+            Mobile  → fixed overlay (z-50), slides in from left
+            Desktop → normal flex child, in flow                  */}
+      {sidebarOpen && (
+        <div className="fixed inset-y-0 left-0 z-50 md:relative md:inset-auto md:z-auto">
+          <Sidebar
+            chats={chats}
+            activeChatId={activeChatId}
+            activeChat={activeChat}
+            onNewChat={handleNewChat}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={deleteChat}
+            onSourceAdded={(src) => addSource(activeChatId, src)}
+            onSourceDeleted={removeSource}
+            onClose={() => setSidebarOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* ── Main content ───────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+
         {/* Header */}
         <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-4">
+          {/* Hamburger — always visible on mobile, visible on desktop only when closed */}
           {!sidebarOpen && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(true)} title="Open sidebar">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0"
+              onClick={() => setSidebarOpen(true)}
+              title="Open sidebar"
+            >
               <PanelLeft size={16} />
             </Button>
           )}
@@ -69,7 +104,7 @@ export default function MainLayout() {
           </span>
         </header>
 
-        {/* Page content — ChatPage renders here */}
+        {/* Page */}
         <ChatPage
           chatId={activeChatId}
           messages={messages}
@@ -79,7 +114,6 @@ export default function MainLayout() {
           onSourceAdded={(src) => addSource(activeChatId, src)}
         />
 
-        {/* Outlet: available for future nested routes */}
         <Outlet />
       </div>
     </div>

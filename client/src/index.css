@@ -154,6 +154,8 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  /* Slide-in animation used on mobile overlay */
+  animation: slide-in-left 0.22s ease both;
 }
 
 /* ─── Chat Message Bubbles ──────────────────────────────────────── */

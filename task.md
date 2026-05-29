@@ -1,113 +1,45 @@
-# Interview Task
+# RAG System — Task Tracker
 
-## RAG-Based PDF Query System
+## Phases Overview
 
-### Objective
-
-Build a simple RAG application that allows users to upload PDF documents and ask questions based on the uploaded content and a predefined external source.
-
----
-
-## Requirements
-
-### PDF Upload & Processing
-
-- Upload PDF files.
-- Extract text from PDFs.
-- Split content into chunks.
-- Generate embeddings.
-- Store embeddings in a vector database.
-
-### Query System
-
-- Provide a chat interface.
-- Accept natural language questions.
-- Retrieve relevant content from uploaded PDFs.
-- Search relevant information from a predefined source (website, documentation, knowledge base, etc.).
-
-### Response Generation
-
-- Combine PDF results and source results.
-- Send context to an LLM.
-- Generate an accurate response.
-- Display sources used for the answer.
+| Phase | What | Status |
+|---|---|---|
+| **Phase 1** | Backend Foundation (scaffolding, config, utilities) | `[x]` Done ✅ |
+| **Phase 2** | Backend Services (embeddings, vectors, PDF, scraper, LLM) | `[ ]` |
+| **Phase 3** | Backend API Routes (upload, scrape, chat, sources) | `[ ]` |
+| **Phase 4** | Frontend Foundation (Vite scaffolding, design system, layout) | `[ ]` |
+| **Phase 5** | Frontend Components + Integration + README | `[ ]` |
 
 ---
 
-## Tech Stack
+## Phase 1: Backend Foundation ← CURRENT
 
-### Backend
+> The base everything depends on. No services, no routes — just a running Express server with config, utilities, and middleware ready.
 
-- Node.js
-- Express.js
+### Micro-Steps
 
-### Frontend
-
-- React.js / Next.js
-
-### AI Components
-
-- OpenRouter (Free Models) / Gemini / Groq
-- ChromaDB / Pinecone for vector storage
+- `[x]` **Step 1.1** — `server/package.json` + install deps + `server/.env.example`
+- `[x]` **Step 1.2** — `server/src/utils/config.js` (centralized env config)
+- `[x]` **Step 1.3** — `server/src/app.js` (Express app: helmet, cors, json, error handler)
+- `[x]` **Step 1.4** — `server/index.js` (entry point with `app.listen`) → **server boots** ✅
+- `[x]` **Step 1.5** — `server/src/utils/chunker.js` (recursive text splitter) ✅
+- `[x]` **Step 1.6** — `server/src/services/sourceStore.js` (in-memory Map) ✅
+- `[x]` **Step 1.7** — `server/src/middleware/validateUrl.js` (SSRF protection) ✅
 
 ---
 
-## Expected Workflow
+## Phase 2: Backend Services ← CURRENT
 
-1. Upload PDF.
-2. Parse and index content.
-3. User asks a question.
-4. Retrieve relevant PDF chunks.
-5. Search the predefined source.
-6. Generate answer using retrieved context.
-7. Display answer with source references.
+> The core intelligence layer: embeddings, vector DB, PDF parsing, web scraping, and LLM.
 
----
+### Micro-Steps
 
-## Deliverables
-
-- Working application.
-- Source code.
-- README with setup instructions.
-- Deploy on Vercel.
+- `[x]` **Step 2.1** — `server/src/services/embeddingService.js` (Gemini embeddings, batched + rate-limited)
+- `[ ]` **Step 2.2** — `server/src/services/vectorService.js` (Pinecone upsert / query / delete)
+- `[ ]` **Step 2.3** — `server/src/services/pdfService.js` (per-page PDF text extraction + chunking)
+- `[ ]` **Step 2.4** — `server/src/services/scraperService.js` (URL fetch + Readability.js + Cheerio fallback + chunking)
+- `[ ]` **Step 2.5** — `server/src/services/llmService.js` (Groq chat completion + RAG prompt builder)
 
 ---
 
-## Bonus (Optional)
-
-- Multiple PDF support.
-- Chat history.
-- Source citations.
-- PDF page references.
-- Clean responsive UI.
-
----
-
-## API Specification
-
-### Ask Question
-
-**Endpoint**
-
-```http
-POST /api/chat
-```
-
-### Request
-
-```json
-{
-  "question": "What is RAG?"
-}
-```
-
-### Response
-
-```json
-{
-  "answer": "RAG stands for Retrieval Augmented Generation...",
-  "sources": [
-    "Page 3"
-  ]
-}
-```
+## Phase 3–5: Will be broken into micro-steps when we reach them.

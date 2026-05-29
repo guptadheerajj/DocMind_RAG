@@ -5,7 +5,7 @@
 | Phase | What | Status |
 |---|---|---|
 | **Phase 1** | Backend Foundation (scaffolding, config, utilities) | `[x]` Done ✅ |
-| **Phase 2** | Backend Services (embeddings, vectors, PDF, scraper, LLM) | `[ ]` |
+| **Phase 2** | Backend Services (embeddings, vectors, PDF, scraper, LLM) | `[x]` Done ✅ |
 | **Phase 3** | Backend API Routes (upload, scrape, chat, sources) | `[ ]` |
 | **Phase 4** | Frontend Foundation (Vite scaffolding, design system, layout) | `[ ]` |
 | **Phase 5** | Frontend Components + Integration + README | `[ ]` |
@@ -38,7 +38,7 @@
 - `[x]` **Step 2.2** — `server/src/services/vectorService.js` (Pinecone upsert / query / delete)
 - `[x]` **Step 2.3** — `server/src/services/pdfService.js` (per-page PDF text extraction + chunking)
 - `[x]` **Step 2.4** — `server/src/services/scraperService.js` (URL fetch + Readability.js + Cheerio fallback + chunking)
-- `[ ]` **Step 2.5** — `server/src/services/llmService.js` (Groq chat completion + RAG prompt builder)
+- `[x]` **Step 2.5** — `server/src/services/llmService.js` (Groq chat completion + RAG prompt builder)
 
 ---
 

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import config from './utils/config.js';
+import { AppError } from './utils/response.js';
 
 const app = express();
 
@@ -30,13 +31,16 @@ app.get('/api/health', (_req, res) => {
 // app.use('/api', chatRouter);
 // app.use('/api', sourcesRouter);
 
-// Global error handler — generic message to client, detailed log for devs
+// Global error handler
+// AppError  → controlled error, send the message + status to the client
+// Other     → unexpected crash, log details, send generic 500 to client
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
+  if (err instanceof AppError) {
+    return res.status(err.status).json({ success: false, error: err.message });
+  }
   console.error('Unhandled error:', err.message);
-  res.status(err.status || 500).json({
-    error: 'Something went wrong. Please try again.',
-  });
+  res.status(500).json({ success: false, error: 'Something went wrong. Please try again.' });
 });
 
 export default app;

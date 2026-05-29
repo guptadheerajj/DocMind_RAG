@@ -42,4 +42,15 @@
 
 ---
 
-## Phase 3–5: Will be broken into micro-steps when we reach them.
+## Phase 3: Backend API Routes ← CURRENT
+
+> Wire services into Express routes. Two steps: centralized helpers, then all route handlers at once.
+
+### Micro-Steps
+
+- `[x]` **Step 3.1** — `server/src/utils/response.js` (centralized success/error helpers + `AppError` class) + update `app.js` global error handler
+- `[ ]` **Step 3.2** — All 4 route files (`upload.js`, `scrape.js`, `chat.js`, `sources.js`) + wire into `app.js`
+
+---
+
+## Phase 4–5: Will be broken into micro-steps when we reach them.

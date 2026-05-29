@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
-  FileText, Globe, Link, Upload, X,
+  FileText, Link, Upload, X,
   CheckCircle2, AlertCircle, Loader2, Plus
 } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -21,7 +21,6 @@ export default function AddSourceDialog({ chatId, onSourceAdded, triggerLabel })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* ✅ Fix: style DialogTrigger directly — no nested Button component */}
       <DialogTrigger
         className={cn(
           buttonVariants({ variant: 'outline', size: triggerLabel ? 'sm' : 'icon' }),

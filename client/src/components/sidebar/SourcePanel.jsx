@@ -84,7 +84,6 @@ export default function SourcePanel({ chatId, sources, onSourceAdded, onSourceDe
                       {src.chunkCount}
                     </Badge>
 
-                    {/* Delete — always visible */}
                     <Button
                       variant="ghost"
                       size="icon-xs"

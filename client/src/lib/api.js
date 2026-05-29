@@ -3,7 +3,7 @@
  * All fetch calls go through here. Throws descriptive errors on failure.
  */
 
-const BASE = '/api'; // proxied to http://localhost:3001 via vite.config.js
+const BASE = '/api'; 
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, options);

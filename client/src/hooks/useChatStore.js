@@ -30,7 +30,7 @@ function makeChat(id) {
 
 /**
  * useChatStore — single source of truth for all chat state.
- * Persists to localStorage so chat history survives page refreshes (Chat History bonus feature).
+ * Persists to localStorage so chat history survives page refreshes
  */
 export function useChatStore() {
   const [chats, setChats] = useState(() => {

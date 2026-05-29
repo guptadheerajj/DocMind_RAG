@@ -6,7 +6,7 @@ export default function ChatPage({ chatId, messages, isLoading, hasSources, onSe
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {hasSources ? (
-        <ChatArea messages={messages} isLoading={isLoading} hasSources={hasSources} />
+        <ChatArea chatId={chatId} messages={messages} isLoading={isLoading} hasSources={hasSources} />
       ) : (
         <WelcomeScreen chatId={chatId} onSourceAdded={onSourceAdded} />
       )}

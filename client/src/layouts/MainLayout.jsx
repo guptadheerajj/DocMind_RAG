@@ -8,10 +8,6 @@ import { toast } from 'sonner';
 import Sidebar from '@/components/sidebar/Sidebar';
 import ChatPage from '@/pages/ChatPage';
 
-/**
- * MainLayout — owns all state and the send pipeline.
- * Sidebar + ChatPage slot in here. Outlet is available for future sub-routes.
- */
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);

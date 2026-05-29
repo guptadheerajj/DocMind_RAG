@@ -3,6 +3,10 @@ import cors from 'cors';
 import helmet from 'helmet';
 import config from './utils/config.js';
 import { AppError } from './utils/response.js';
+import uploadRouter from './routes/upload.js';
+import scrapeRouter from './routes/scrape.js';
+import chatRouter from './routes/chat.js';
+import sourcesRouter from './routes/sources.js';
 
 const app = express();
 
@@ -25,11 +29,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// TODO: Mount routes here as they are built
-// app.use('/api', uploadRouter);
-// app.use('/api', scrapeRouter);
-// app.use('/api', chatRouter);
-// app.use('/api', sourcesRouter);
+// API Routes
+app.use('/api', uploadRouter);
+app.use('/api', scrapeRouter);
+app.use('/api', chatRouter);
+app.use('/api', sourcesRouter);
 
 // Global error handler
 // AppError  → controlled error, send the message + status to the client

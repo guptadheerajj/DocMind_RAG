@@ -6,7 +6,7 @@
 |---|---|---|
 | **Phase 1** | Backend Foundation (scaffolding, config, utilities) | `[x]` Done ✅ |
 | **Phase 2** | Backend Services (embeddings, vectors, PDF, scraper, LLM) | `[x]` Done ✅ |
-| **Phase 3** | Backend API Routes (upload, scrape, chat, sources) | `[ ]` |
+| **Phase 3** | Backend API Routes (upload, scrape, chat, sources) | `[x]` Done ✅|
 | **Phase 4** | Frontend Foundation (Vite scaffolding, design system, layout) | `[ ]` |
 | **Phase 5** | Frontend Components + Integration + README | `[ ]` |
 
@@ -49,7 +49,7 @@
 ### Micro-Steps
 
 - `[x]` **Step 3.1** — `server/src/utils/response.js` (centralized success/error helpers + `AppError` class) + update `app.js` global error handler
-- `[ ]` **Step 3.2** — All 4 route files (`upload.js`, `scrape.js`, `chat.js`, `sources.js`) + wire into `app.js`
+- `[x]` **Step 3.2** — All 4 route files (`upload.js`, `scrape.js`, `chat.js`, `sources.js`) + wire into `app.js`
 
 ---
 

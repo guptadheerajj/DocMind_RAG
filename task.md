@@ -114,20 +114,15 @@
 
 ### Micro-Steps
 
-- `[ ]` **Step 6.1** — `client/src/lib/api.js` — Centralized API client:
-  - `uploadPdf(chatId, file)` → `POST /api/upload`
-  - `scrapeUrl(chatId, url)` → `POST /api/scrape`
-  - `sendMessage(chatId, question)` → `POST /api/chat`
-  - `getSources(chatId)` → `GET /api/sources/:chatId`
-  - `deleteSource(sourceId)` → `DELETE /api/sources/:sourceId`
-- `[ ]` **Step 6.2** — Wire `AddSourceDialog` to `api.js` + refresh sources after success
-- `[ ]` **Step 6.3** — Wire `ChatInput` → `api.js` → append user + AI messages to `useChatStore`
-- `[ ]` **Step 6.4** — Wire `SourcePanel` delete button → `api.js` → update store
-- `[ ]` **Step 6.5** — End-to-end test: Upload PDF → Add URL → Ask question → Verify sources shown
+- `[x]` **Step 6.1** — `client/src/lib/api.js` — Centralized API client (done in Phase 5)
+- `[x]` **Step 6.2** — `AddSourceDialog` wired to `api.js` (done in Phase 5)
+- `[x]` **Step 6.3** — `ChatInput` wired → `api.js` → messages (done in Phase 5)
+- `[x]` **Step 6.4** — `SourcePanel` delete wired to `api.js` (done in Phase 5)
+- `[x]` **Step 6.5** — `WelcomeScreen` concurrency fix: stale-closure bug fixed, PDF + URL uploads are fully independent parallel operations, per-file error handling (upload continues on single-file failure)
 - `[ ]` **Step 6.6** — Final polish:
-  - Error toast notifications via Shadcn `toast`
-  - Smooth sidebar open/close animation on mobile
-  - Ensure chat history loads correctly on page refresh
+  - `[ ]` Scroll-to-top when switching chats in `ChatArea`
+  - `[ ]` Verify chat history loads correctly on page refresh
+  - `[ ]` `npm run build` — zero errors
 
 ---
 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
   FileText, Globe, Link, Upload, X,
@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 let _id = 0;
 function nextId() { return ++_id; }
 
-export default function WelcomeScreen({ chatId, onSourceAdded }) {
+export default function WelcomeScreen({ chatId, onSourceAdded, onBusyChange }) {
   // ── PDF state ──────────────────────────────────────────────────────────────
   const [pdfItems, setPdfItems] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -25,6 +25,12 @@ export default function WelcomeScreen({ chatId, onSourceAdded }) {
   const [urlStatus, setUrlStatus] = useState('idle'); // idle | loading | done | error
   const [urlMsg, setUrlMsg] = useState('');
   const [scraping, setScraping] = useState(false);
+
+  // Notify parent whenever uploading/scraping starts or finishes.
+  // ChatPage uses this to hold WelcomeScreen visible until all ops complete.
+  useEffect(() => {
+    onBusyChange?.(uploading || scraping);
+  }, [uploading, scraping, onBusyChange]);
 
   // Track how many sources have been indexed (for "ready to chat" message)
   const indexedCount = pdfItems.filter((f) => f.status === 'done').length

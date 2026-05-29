@@ -264,3 +264,49 @@
 .source-card:hover {
   border-color: oklch(1 0 0 / 15%);
 }
+
+/* ─── Inline Citation Chips ─────────────────────────────────────── */
+/* Chips are inline elements rendered inside prose paragraphs.        */
+/* They escape the .prose code styling via specificity.               */
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;         /* override monospace from .prose code */
+  vertical-align: middle;
+  white-space: nowrap;
+  line-height: 1.6;
+  cursor: default;
+  text-decoration: none;
+}
+
+.citation-chip-pdf {
+  background: oklch(0.65 0.22 25 / 12%);   /* red-tinted */
+  color: oklch(0.72 0.18 28);
+  border: 1px solid oklch(0.65 0.22 25 / 22%);
+}
+
+.citation-chip-url {
+  background: oklch(0.60 0.18 240 / 12%);  /* blue-tinted */
+  color: oklch(0.72 0.14 240);
+  border: 1px solid oklch(0.60 0.18 240 / 22%);
+  transition: background 0.15s ease;
+}
+.citation-chip-url:hover {
+  background: oklch(0.60 0.18 240 / 22%);
+}
+
+/* Override .prose code for citation chips (chips are not code blocks) */
+.prose .citation-chip {
+  background: inherit;
+  border: inherit;
+  border-radius: 999px;
+  padding: inherit;
+  font-size: 11px;
+  font-family: inherit;
+}

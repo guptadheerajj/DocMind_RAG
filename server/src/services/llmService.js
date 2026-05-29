@@ -27,16 +27,17 @@ const groq = new Groq({ apiKey: config.groqApiKey });
  * @returns {Promise<{ answer: string, sources: Array<{ source, type, page? }> }>}
  */
 export async function generateAnswer(question, contextChunks) {
-  // Build the numbered context block
+  // Build context block — source name is shown directly (no numbered labels)
+  // so the model naturally cites by name, e.g. (OS PPT.pdf, Page 2)
   const contextBlock = contextChunks
-    .map((match, i) => {
+    .map((match) => {
       const meta = match.metadata;
       const sourceLabel =
         meta.type === 'pdf'
           ? `${meta.source}, Page ${meta.page}`
           : meta.source;
 
-      return `[${i + 1}] (source: ${sourceLabel})\n"${meta.text}"`;
+      return `(source: ${sourceLabel})\n"${meta.text}"`;
     })
     .join('\n\n');
 
@@ -45,7 +46,7 @@ export async function generateAnswer(question, contextChunks) {
 Rules:
 - Answer ONLY using information from the context below.
 - If the context does not contain enough information to answer the question, respond with: "I don't have enough information in the provided sources to answer that."
-- Always cite which source(s) you used, referencing them by their [number] label.
+- Always cite which source(s) you used inline, using the source name directly — for example: (OS PPT.pdf, Page 2) or (geeksforgeeks.org). Never use numbered labels like [1] or [2].
 - Be concise and precise.`;
 
   const userMessage = 

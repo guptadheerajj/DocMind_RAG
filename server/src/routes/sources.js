@@ -6,11 +6,12 @@ import { AppError, sendSuccess, sendNotFound, sendServerError } from '../utils/r
 const router = Router();
 
 /**
- * GET /api/sources
- * Returns all currently indexed sources (from in-memory store).
+ * GET /api/sources/:chatId
+ * Returns all currently indexed sources for a specific chat.
  */
-router.get('/sources', (_req, res) => {
-  const sources = getAllSources();
+router.get('/sources/:chatId', (req, res) => {
+  const { chatId } = req.params;
+  const sources = getAllSources(chatId);
   sendSuccess(res, { sources });
 });
 

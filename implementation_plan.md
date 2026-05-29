@@ -10,7 +10,7 @@ Build a production-grade RAG application that lets users upload PDFs, scrape ext
 |---|---|
 | **External sources** | User pastes URLs in the UI → app scrapes + indexes them on demand |
 | **Authentication** | No auth — app is public |
-| **Chat history** | Deferred to a later phase. Purely additive — no refactoring needed. For now, chat lives in React component state only. |
+| **Chat history & Isolation** | **ChatGPT-style isolated sessions.** Each chat has a unique `chatId`. Uploaded PDFs/URLs are tied to this `chatId` in Pinecone metadata. Queries are filtered by `chatId`. Frontend manages chat history. |
 | **Deployment** | Express on **Render/Railway** (traditional server). React frontend on **Vercel**. |
 
 ---
@@ -246,13 +246,13 @@ const options = {
 
 ---
 
-#### [NEW] [vectorService.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/services/vectorService.js)
+#### [MODIFY] [vectorService.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/services/vectorService.js)
 
-- `upsertChunks(chunks[], embeddings[], sourceId)` — stores vectors + metadata in Pinecone
-  - Vector ID format: `{sourceId}_{chunkIndex}`
-  - Metadata includes: `source`, `type`, `page` (for PDFs), `text` (truncated to Pinecone's 40KB metadata limit)
-- `query(embedding, topK=5)` — cosine similarity search, returns matches with metadata + scores
-- `deleteBySource(sourceId)` — deletes all vectors with matching `sourceId` in metadata (uses Pinecone's metadata filter delete)
+- `upsertChunks(chunks[], embeddings[], sourceId, chatId)` — stores vectors + metadata in Pinecone
+  - Metadata now includes: `chatId`, `source`, `type`, `page`, `text`
+- `query(embedding, topK=5, chatId)` — cosine similarity search
+  - **CRITICAL CHANGE**: Adds Pinecone metadata filter `filter: { chatId: { $eq: chatId } }` so the search only returns vectors belonging to the current chat session.
+- `deleteBySource(sourceId)` — unchanged.
 
 ---
 
@@ -320,43 +320,32 @@ Express app factory:
 
 ---
 
-#### Routes
-
-#### [NEW] [upload.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/upload.js)
+#### [MODIFY] [upload.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/upload.js)
 ```http
 POST /api/upload
 Content-Type: multipart/form-data
-Body: file (PDF, max 10MB)
+Body: file (PDF, max 10MB), chatId (string)
 Response: { success, sourceId, filename, chunkCount }
 ```
-Pipeline: multer (memory) → pdfService (per-page) → embeddingService (batched) → vectorService → sourceStore
+- Attaches `chatId` from `req.body` to all chunks before upserting.
 
-#### [NEW] [scrape.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/scrape.js)
+#### [MODIFY] [scrape.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/scrape.js)
 ```http
 POST /api/scrape
-Body: { "url": "https://en.wikipedia.org/wiki/..." }
-Response: { success, sourceId, title, chunkCount }
+Body: { "url": "https://...", "chatId": "string" }
 ```
-Pipeline: **validateUrl middleware** → scraperService → embeddingService (batched) → vectorService → sourceStore
+- Attaches `chatId` from `req.body` to all chunks before upserting.
 
-#### [NEW] [chat.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/chat.js)
+#### [MODIFY] [chat.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/chat.js)
 ```http
 POST /api/chat
-Body: { "question": "What is RAG?" }
-Response: { answer, sources: ["Page 3", "https://en.wikipedia.org/..."] }
+Body: { "question": "What is RAG?", "chatId": "string" }
 ```
-Pipeline: embed query → Pinecone top-5 → Groq LLM (temp 0, max_tokens 1024) → structured response
+- Passes `chatId` to `queryVectors()` to filter Pinecone search.
 
-#### [NEW] [sources.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/routes/sources.js)
-```http
-GET /api/sources
-Response: { sources: [{ id, name, type, chunkCount, createdAt }] }
-
-DELETE /api/sources/:id
-Response: { success, message }
-```
-- GET reads from `sourceStore`
-- DELETE removes from `sourceStore` + deletes vectors from Pinecone via `vectorService.deleteBySource`
+#### [MODIFY] [sourceStore.js](file:///home/dheeraj/internships/brainheaters/rag-langchain/server/src/services/sourceStore.js) & `sources.js` route
+- Need to update the store to group sources by `chatId` so the frontend knows which PDFs belong to which chat when it switches sessions.
+- `GET /api/sources/:chatId` (returns sources for a specific chat).
 
 ---
 

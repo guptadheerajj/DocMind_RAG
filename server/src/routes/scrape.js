@@ -16,7 +16,9 @@ const router = Router();
  */
 router.post('/scrape', validateUrl, async (req, res) => {
   try {
-    const { url } = req.body;
+    const { url, chatId } = req.body;
+    if (!chatId) throw new AppError('chatId is required.', 400);
+
     const sourceId = uuidv4();
 
     // 1. Fetch + extract clean text → tagged chunks
@@ -27,7 +29,7 @@ router.post('/scrape', validateUrl, async (req, res) => {
     const embeddings = await embedDocuments(chunks.map((c) => c.text));
 
     // 3. Upsert into Pinecone
-    await upsertChunks(chunks, embeddings, sourceId);
+    await upsertChunks(chunks, embeddings, sourceId, chatId);
 
     // 4. Register source — use page title if scraperService extracted one
     const title = chunks[0]?.metadata?.title || url;
@@ -35,6 +37,7 @@ router.post('/scrape', validateUrl, async (req, res) => {
       name: title,
       type: 'web',
       url,
+      chatId,
       chunkCount: chunks.length,
     });
 

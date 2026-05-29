@@ -13,7 +13,11 @@ const router = Router();
  */
 router.post('/chat', async (req, res) => {
   try {
-    const { question } = req.body;
+    const { question, chatId } = req.body;
+
+    if (!chatId) {
+      throw new AppError('chatId is required.', 400);
+    }
 
     if (!question || typeof question !== 'string' || question.trim().length === 0) {
       throw new AppError('Question is required and must be a non-empty string.', 400);
@@ -24,8 +28,8 @@ router.post('/chat', async (req, res) => {
     // 1. Embed the user's question
     const queryEmbedding = await embedQuery(trimmedQuestion);
 
-    // 2. Find the top-5 most relevant chunks in Pinecone
-    const matches = await queryVectors(queryEmbedding, 5);
+    // 2. Find the top-5 most relevant chunks in Pinecone for this specific chat
+    const matches = await queryVectors(queryEmbedding, 5, chatId);
 
     if (matches.length === 0) {
       return sendSuccess(res, {

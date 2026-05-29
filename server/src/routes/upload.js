@@ -30,8 +30,10 @@ const upload = multer({
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) throw new AppError('No file uploaded.', 400);
+    if (!req.body.chatId) throw new AppError('chatId is required.', 400);
 
     const { buffer, originalname } = req.file;
+    const { chatId } = req.body;
     const sourceId = uuidv4();
 
     // 1. Extract text per-page → tagged chunks
@@ -42,12 +44,13 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const embeddings = await embedDocuments(chunks.map((c) => c.text));
 
     // 3. Upsert vectors + metadata into Pinecone
-    await upsertChunks(chunks, embeddings, sourceId);
+    await upsertChunks(chunks, embeddings, sourceId, chatId);
 
     // 4. Register source in the in-memory store
     addSource(sourceId, {
       name: originalname,
       type: 'pdf',
+      chatId,
       chunkCount: chunks.length,
     });
 

@@ -21,14 +21,16 @@ const index = pinecone.index(config.pineconeIndexName);
  * @param {Array<{ text: string, metadata: object }>} chunks
  * @param {number[][]} embeddings - parallel array of 768-dim vectors
  * @param {string} sourceId - unique ID for this source document
+ * @param {string} chatId - the ID of the chat session this document belongs to
  */
-export async function upsertChunks(chunks, embeddings, sourceId) {
+export async function upsertChunks(chunks, embeddings, sourceId, chatId) {
   const vectors = chunks.map((chunk, i) => {
     const meta = {
       text: chunk.text.slice(0, 36_000), // Pinecone metadata cap: ~40KB per vector
       source: chunk.metadata.source,
       type: chunk.metadata.type,
       sourceId,
+      chatId,
       chunkIndex: i,
     };
 
@@ -59,13 +61,15 @@ export async function upsertChunks(chunks, embeddings, sourceId) {
  *
  * @param {number[]} queryEmbedding - 768-dim vector from embedQuery()
  * @param {number} topK - number of results to return (default: 5)
+ * @param {string} chatId - filter results by this chat session ID
  * @returns {Promise<Array<{ score: number, metadata: object }>>}
  */
-export async function queryVectors(queryEmbedding, topK = 5) {
+export async function queryVectors(queryEmbedding, topK = 5, chatId) {
   const result = await index.query({
     vector: queryEmbedding,
     topK,
     includeMetadata: true,
+    filter: { chatId: { $eq: chatId } },
   });
 
   return result.matches;

@@ -38,11 +38,13 @@ export function removeSource(sourceId) {
 }
 
 /**
- * Get all indexed sources.
+ * Get all indexed sources for a specific chat.
+ * @param {string} chatId
  * @returns {Array<object>}
  */
-export function getAllSources() {
-  return Array.from(sources.values());
+export function getAllSources(chatId) {
+  const all = Array.from(sources.values());
+  return all.filter((source) => source.chatId === chatId);
 }
 
 /**

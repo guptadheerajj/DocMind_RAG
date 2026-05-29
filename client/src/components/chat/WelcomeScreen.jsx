@@ -278,21 +278,43 @@ export default function WelcomeScreen({ chatId, onSourceAdded, onBusyChange }) {
           </div>
         </div>
 
-        {/* ── Both in-progress indicator ────────────────────────── */}
-        {uploading && scraping && (
-          <p className="animate-fade-in text-center text-sm text-muted-foreground">
-            <Loader2 size={12} className="inline mr-1.5 animate-spin" />
-            Uploading PDFs and scraping URL simultaneously…
-          </p>
+        {/* ── Rate-limit info banner (shown during any upload/scrape) ──── */}
+        {(uploading || scraping) && (
+          <div className="animate-fade-in rounded-xl border border-amber-500/20 bg-amber-500/6 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 shrink-0 rounded-md bg-amber-500/15 p-1.5">
+                <Loader2 size={14} className="animate-spin text-amber-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-amber-300 mb-1">
+                  Processing – this may take a moment
+                </p>
+                <p className="text-xs text-amber-400/80 leading-relaxed">
+                  Embeddings are generated using the <span className="font-medium">Google Gemini free-tier API</span>,
+                  which is rate-limited to <span className="font-medium">100 requests/minute</span>.
+                  Each chunk of text requires a separate API call, so larger documents
+                  or multiple simultaneous uploads are throttled to avoid quota errors.
+                </p>
+                {uploading && scraping && (
+                  <p className="mt-1.5 text-xs text-amber-400/70">
+                    ⚡ PDF upload &amp; URL scraping are running in parallel — they share the same rate-limit slot.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* ── Ready to chat ─────────────────────────────────────── */}
+        {/* ── Ready to chat ──────────────────────────────── */}
         {indexedCount > 0 && !uploading && !scraping && (
-          <div className="animate-fade-in text-center">
-            <p className="text-sm text-muted-foreground">
-              <CheckCircle2 size={14} className="inline mr-1.5 text-green-400" />
-              {indexedCount} source{indexedCount !== 1 ? 's' : ''} ready — ask your first question below ↓
-            </p>
+          <div className="animate-fade-in rounded-xl border border-green-500/20 bg-green-500/6 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 size={16} className="shrink-0 text-green-400" />
+              <p className="text-sm text-green-300">
+                <span className="font-medium">{indexedCount} source{indexedCount !== 1 ? 's' : ''} indexed</span>
+                {' '}&mdash; all embeddings stored in Pinecone. You can now ask questions below ↓
+              </p>
+            </div>
           </div>
         )}
       </div>

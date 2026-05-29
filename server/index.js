@@ -1,9 +1,11 @@
 import app from './src/app.js';
 import config from './src/utils/config.js';
 
-const server = app.listen(config.port, '127.0.0.1', () => {
-  console.log(`Server running at http://127.0.0.1:${config.port}`);
-  console.log(`Health check: http://127.0.0.1:${config.port}/api/health`);
+const PORT = config.port;
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
+  console.log(`Health check: http://${HOST}:${PORT}/api/health`);
 });
 
 // Graceful shutdown

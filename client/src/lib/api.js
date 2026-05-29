@@ -3,7 +3,11 @@
  * All fetch calls go through here. Throws descriptive errors on failure.
  */
 
-const BASE = '/api'; 
+// In dev: Vite proxy forwards /api → localhost:3001 (no VITE_API_URL needed)
+// In prod: VITE_API_URL must be set to the Render backend URL (e.g. https://docmind-rag.onrender.com)
+const BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, options);

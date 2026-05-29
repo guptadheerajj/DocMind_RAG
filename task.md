@@ -37,7 +37,7 @@
 - `[x]` **Step 2.1** — `server/src/services/embeddingService.js` (Gemini embeddings, batched + rate-limited)
 - `[x]` **Step 2.2** — `server/src/services/vectorService.js` (Pinecone upsert / query / delete)
 - `[x]` **Step 2.3** — `server/src/services/pdfService.js` (per-page PDF text extraction + chunking)
-- `[ ]` **Step 2.4** — `server/src/services/scraperService.js` (URL fetch + Readability.js + Cheerio fallback + chunking)
+- `[x]` **Step 2.4** — `server/src/services/scraperService.js` (URL fetch + Readability.js + Cheerio fallback + chunking)
 - `[ ]` **Step 2.5** — `server/src/services/llmService.js` (Groq chat completion + RAG prompt builder)
 
 ---

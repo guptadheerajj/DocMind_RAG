@@ -75,10 +75,12 @@ export default function MainLayout() {
 
         {/* Page content — ChatPage renders here */}
         <ChatPage
+          chatId={activeChatId}
           messages={messages}
           isLoading={isLoading}
           hasSources={hasSources}
           onSend={handleSend}
+          onSourceAdded={(src) => addSource(activeChatId, src)}
         />
 
         {/* Outlet: available for future nested routes */}

@@ -1,25 +1,36 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Plus, FileText, Link, Upload, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  FileText, Globe, Link, Upload, X,
+  CheckCircle2, AlertCircle, Loader2, Plus
+} from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { uploadPdf, scrapeUrl } from '@/lib/api';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-export default function AddSourceDialog({ chatId, onSourceAdded }) {
+export default function AddSourceDialog({ chatId, onSourceAdded, triggerLabel }) {
   const [open, setOpen] = useState(false);
-
   function handleClose() { setOpen(false); }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Add source">
-          <Plus size={14} />
-        </Button>
+      {/* ✅ Fix: style DialogTrigger directly — no nested Button component */}
+      <DialogTrigger
+        className={cn(
+          buttonVariants({ variant: 'outline', size: triggerLabel ? 'sm' : 'icon' }),
+          triggerLabel ? 'gap-1.5 h-7 text-xs px-2.5' : 'h-7 w-7'
+        )}
+        title="Add source (PDF or URL)"
+      >
+        <Plus size={12} />
+        {triggerLabel && <span>{triggerLabel}</span>}
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
@@ -27,13 +38,13 @@ export default function AddSourceDialog({ chatId, onSourceAdded }) {
           <DialogTitle>Add Source</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="pdf" className="mt-2">
+        <Tabs defaultValue="pdf" className="mt-1">
           <TabsList className="w-full">
-            <TabsTrigger value="pdf" className="flex-1 gap-2">
-              <FileText size={13} /> Upload PDF
+            <TabsTrigger value="pdf" className="flex-1 gap-1.5 text-xs">
+              <FileText size={12} /> Upload PDF
             </TabsTrigger>
-            <TabsTrigger value="url" className="flex-1 gap-2">
-              <Link size={13} /> Add URL
+            <TabsTrigger value="url" className="flex-1 gap-1.5 text-xs">
+              <Link size={12} /> Add URL
             </TabsTrigger>
           </TabsList>
 
@@ -77,15 +88,21 @@ function PdfTab({ chatId, onSourceAdded, onClose }) {
   async function handleUpload() {
     setUploading(true);
     for (let i = 0; i < fileItems.length; i++) {
-      if (fileItems[i].status === 'done') continue;
-      setFileItems((prev) => prev.map((f, idx) => idx === i ? { ...f, status: 'uploading' } : f));
+      if (fileItems[i].status !== 'pending') continue;
+      setFileItems((prev) =>
+        prev.map((f, idx) => idx === i ? { ...f, status: 'uploading' } : f)
+      );
       try {
         const data = await uploadPdf(chatId, fileItems[i].file);
         onSourceAdded({ id: data.sourceId, name: data.filename, type: 'pdf', chunkCount: data.chunkCount, createdAt: new Date().toISOString() });
-        setFileItems((prev) => prev.map((f, idx) => idx === i ? { ...f, status: 'done', message: `${data.chunkCount} chunks` } : f));
+        setFileItems((prev) =>
+          prev.map((f, idx) => idx === i ? { ...f, status: 'done', message: `${data.chunkCount} chunks` } : f)
+        );
         toast.success(`Indexed "${data.filename}"`);
       } catch (err) {
-        setFileItems((prev) => prev.map((f, idx) => idx === i ? { ...f, status: 'error', message: err.message } : f));
+        setFileItems((prev) =>
+          prev.map((f, idx) => idx === i ? { ...f, status: 'error', message: err.message } : f)
+        );
         toast.error(err.message);
       }
     }
@@ -97,44 +114,39 @@ function PdfTab({ chatId, onSourceAdded, onClose }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Dropzone */}
       <div
         {...getRootProps()}
-        className={`dropzone flex flex-col items-center gap-2 ${isDragActive ? 'active' : ''} ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+        className={`dropzone ${isDragActive ? 'active' : ''} ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <input {...getInputProps()} />
-        <Upload size={22} className="text-muted-foreground" />
-        <p className="text-sm font-medium text-foreground">
+        <Upload size={20} className="mx-auto mb-2 text-muted-foreground" />
+        <p className="text-sm font-medium text-foreground mb-0.5">
           {isDragActive ? 'Drop PDFs here…' : 'Drag & drop PDFs here'}
         </p>
-        <p className="text-xs text-muted-foreground">
-          or click to browse · Multiple files · Max 10MB each
-        </p>
+        <p className="text-xs text-muted-foreground">or click to browse · Multiple files · Max 10MB</p>
       </div>
 
-      {/* File list */}
       {fileItems.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {fileItems.map((item, i) => (
-            <li key={i} className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-xs">
+            <li key={i} className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
               <FileStatusIcon status={item.status} />
-              <span className="flex-1 truncate text-foreground">{item.file.name}</span>
+              <span className="flex-1 truncate">{item.file.name}</span>
               {item.message && (
                 <Badge variant={item.status === 'error' ? 'destructive' : 'secondary'} className="shrink-0 text-[10px]">
                   {item.message}
                 </Badge>
               )}
               {item.status === 'pending' && !uploading && (
-                <Button variant="ghost" size="icon" className="h-5 w-5 shrink-0" onClick={() => removeFile(i)}>
-                  <X size={11} />
-                </Button>
+                <button onClick={() => removeFile(i)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                  <X size={13} />
+                </button>
               )}
             </li>
           ))}
         </ul>
       )}
 
-      {/* Actions */}
       <div className="flex justify-end gap-2">
         {allDone ? (
           <Button onClick={onClose}>Done</Button>
@@ -166,7 +178,7 @@ function UrlTab({ chatId, onSourceAdded, onClose }) {
       const data = await scrapeUrl(chatId, url.trim());
       onSourceAdded({ id: data.sourceId, name: data.title, type: 'web', url: data.url, chunkCount: data.chunkCount, createdAt: new Date().toISOString() });
       setStatus('done');
-      setMessage(`"${data.title}" — ${data.chunkCount} chunks indexed`);
+      setMessage(`"${data.title}" — ${data.chunkCount} chunks`);
       toast.success('URL scraped and indexed');
     } catch (err) {
       setStatus('error');
@@ -182,7 +194,7 @@ function UrlTab({ chatId, onSourceAdded, onClose }) {
         <Input
           type="url"
           value={url}
-          onChange={(e) => { setUrl(e.target.value); setStatus('idle'); }}
+          onChange={(e) => { setUrl(e.target.value); setStatus('idle'); setMessage(''); }}
           placeholder="https://example.com/article"
           disabled={status === 'loading' || status === 'done'}
           onKeyDown={(e) => { if (e.key === 'Enter' && status === 'idle') handleScrape(); }}
@@ -190,9 +202,15 @@ function UrlTab({ chatId, onSourceAdded, onClose }) {
       </div>
 
       {message && (
-        <div className={`flex items-start gap-2 rounded-md border px-3 py-2 text-xs ${status === 'error' ? 'border-destructive/30 bg-destructive/10 text-destructive' : 'border-green-500/30 bg-green-500/10 text-green-400'}`}>
-          {status === 'error' ? <AlertCircle size={13} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={13} className="mt-0.5 shrink-0" />}
-          {message}
+        <div className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm ${
+          status === 'error'
+            ? 'border-destructive/25 bg-destructive/10 text-destructive'
+            : 'border-green-500/25 bg-green-500/10 text-green-400'
+        }`}>
+          {status === 'error'
+            ? <AlertCircle size={14} className="mt-0.5 shrink-0" />
+            : <CheckCircle2 size={14} className="mt-0.5 shrink-0" />}
+          <span>{message}</span>
         </div>
       )}
 

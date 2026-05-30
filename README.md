@@ -2,7 +2,7 @@
 
 A full-stack Retrieval-Augmented Generation (RAG) application that lets you upload PDFs or scrape URLs and then ask questions grounded in your documents — with inline citations.
 
-**Live Demo:** [docmind-rag.vercel.app](https://docmind-rag.vercel.app) · **Backend:** [Render](https://docmind-rag.onrender.com/api/health)
+**Live Demo:** [docmind-rag.vercel.app](https://doc-mind-rag-fawn.vercel.app/)) · **Backend:** [Render](https://docmind-rag.onrender.com/api/health)
 
 ---
 
